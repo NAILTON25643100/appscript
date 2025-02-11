@@ -83,9 +83,61 @@
     </form>
 
     <script>
-        const scriptURL = "https://script.google.com/macros/s/AKfycbxahSPIFhh-jBNGyNG1mcNatWgRLA17y0NPBaM6l462WBGPjZix0H6xZjrpIKXF_SAr/exec"; // **SUBSTITUA PELO SEU URL**
+       const scriptURL = "https://script.google.com/macros/s/AKfycbxahSPIFhh-jBNGyNG1mcNatWgRLA17y0NPBaM6l462WBGPjZix0H6xZjrpIKXF_SAr/exec"; // **SUBSTITUA PELO SEU URL**
 
-        // ... (resto do código JavaScript - carregarLista, carregarPrefeituras, etc.)
-    </script>
+        // Função para buscar dados da planilha e popular um select
+        function carregarDadosParaSelect(aba, selectId) {
+            google.script.run.withSuccessHandler(data => {
+                const select = document.getElementById(selectId);
+                select.innerHTML = ''; // Limpa as opções existentes
+
+                // Adiciona a opção padrão (vazia)
+                const optionVazia = document.createElement('option');
+                optionVazia.value = '';
+                select.appendChild(optionVazia);
+
+
+                if (data.error) {
+                    console.error(data.error);
+                    return;
+                }
+
+                data.forEach(row => {
+                    const option = document.createElement('option');
+                    option.value = row[0]; // Assumindo que o primeiro elemento da linha é o valor
+                    option.text = row[0];  // Assumindo que o primeiro elemento da linha é o texto a ser exibido
+                    select.appendChild(option);
+                });
+            }).buscarDadosDaPlanilha(aba);
+        }
+
+        // Carrega os dados para os selects
+        carregarDadosParaSelect('PREFEITURAS', 'prefeitura'); // Substitua 'PREFEITURAS' pelo nome da sua aba
+        carregarDadosParaSelect('ANALISTAS', 'analista');      // Substitua 'ANALISTAS' pelo nome da sua aba
+        carregarDadosParaSelect('FOLHAS', 'folha');          // Substitua 'FOLHAS' pelo nome da sua aba
+        carregarDadosParaSelect('VERBAS', 'verba');          // Substitua 'VERBAS' pelo nome da sua aba
+        carregarDadosParaSelect('STATUS', 'status');          // Substitua 'STATUS' pelo nome da sua aba
+        carregarDadosParaSelect('SITUACOES', 'situacao');      // Substitua 'SITUACOES' pelo nome da sua aba
+        carregarDadosParaSelect('APONTAMENTOS', 'apontamento'); // Substitua 'APONTAMENTOS' pelo nome da sua aba
+        carregarDadosParaSelect('LEGISLACOES', 'legislacao');   // Substitua 'LEGISLACOES' pelo nome da sua aba
+
+
+        // Função para enviar o formulário
+        document.getElementById('dataForm').addEventListener('submit', function(event) {
+            event.preventDefault(); // Impede o envio padrão do formulário
+
+            const formData = new FormData(this);
+            const dados = {};
+            formData.forEach((value, key) => dados[key] = value);
+
+            google.script.run.withSuccessHandler(response => {
+                alert(response.message);
+                if (response.success) {
+                    this.reset(); // Limpa o formulário após o sucesso
+                }
+            }).processarFormulario(dados);
+        });
+
+   </script>
 </body>
 </html>
